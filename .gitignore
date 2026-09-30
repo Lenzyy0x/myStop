@@ -74,3 +74,4 @@ Testing/
 **/build/
 **/sdkconfig
 **/Makefile
+!/Makefile

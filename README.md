@@ -7,30 +7,34 @@ Später soll es aber mit OTA - (Over the air) Updates realisiert werden. Zum Bei
 
 ## Storage-Tests
 
-Die Storage-Tests laufen auf dem ESP32. Im Firmware-Verzeichnis einen separaten Test-Build erstellen und flashen:
+Die Storage-Tests laufen auf dem ESP32. Das kommentierte Root-`Makefile` bietet kurze Befehle. Führe sie im Projekt-Root aus; von einem anderen Verzeichnis kannst du Make mit `-C` auf das Projekt zeigen lassen. Voraussetzung ist eine initialisierte ESP-IDF-Umgebung, sodass `idf.py` im `PATH` liegt, sowie GNU Make.
 
 ```sh
-cd firmware
-idf.py -B build-tests -D MYSTOP_RUN_STORAGE_TESTS=ON build
-idf.py -B build-tests -p /dev/ttyUSB0 flash monitor
+make help
+make test-build
+make test PORT=/dev/ttyUSB0
 ```
 
-`-B` legt den Build-Ordner fest, damit Test-Builds vom normalen Build getrennt sind
-`-D` übergibt CMake Variable zum Aktivieren der Tests
+Von außerhalb des Projektverzeichnisses zum Beispiel:
 
-`/dev/ttyUSB0` durch den seriellen Port des Boards ersetzen (oder einfach weglassen falls man nur einen Mikrocontroller angeschlossen hat). Die Tests starten automatisch und das Ergebnis erscheint im Monitor. Die normale Firmware wird weiterhin mit `idf.py build flash monitor` gebaut.
+```sh
+make -C "/pfad/zu/myStop" test PORT=/dev/ttyUSB0
+```
+
+`make test` baut und flasht die Test-Firmware und öffnet danach den seriellen Monitor. Die Tests starten automatisch. `PORT` ist optional; ohne Angabe versucht ESP-IDF den angeschlossenen Port selbst zu erkennen. Alternativ lassen sich Flashen und Monitor getrennt aufrufen: `make test-flash PORT=/dev/ttyUSB0` und `make test-monitor PORT=/dev/ttyUSB0`.
+
+Die normale Firmware lässt sich mit `make build` bauen oder mit `make flash-monitor PORT=/dev/ttyUSB0` flashen und überwachen. `make erase-flash PORT=...` löscht den Flash des Boards einschließlich NVS-Daten und sollte nur bewusst verwendet werden.
 
 ### Firmware-Konfiguration
 
-`firmware/sdkconfig.defaults` enthält die Projekt-Defaults: 4 MB Flash, die ESP-IDF-Partitionstabelle mit zwei OTA-Slots und den Unity-Test-Runner. ESP-IDF liest diese Datei automatisch ein, weil sie neben der Firmware-`CMakeLists.txt` liegt. Eine neu erzeugte `sdkconfig` wird daraus initialisiert; eine bereits vorhandene `sdkconfig` bleibt maßgeblich und wird durch Änderungen an den Defaults nicht automatisch überschrieben. Auch mit verschiedenen `-B`-Build-Ordnern wird standardmäßig dieselbe `firmware/sdkconfig` verwendet; `-B` trennt nur generierte Build-Dateien. Für einen frischen Build zuerst im Verzeichnis `firmware` das Ziel setzen und dann bauen:
+`firmware/sdkconfig.defaults` enthält die Projekt-Defaults: 4 MB Flash, die ESP-IDF-Partitionstabelle mit zwei OTA-Slots und den Unity-Test-Runner. ESP-IDF liest diese Datei automatisch ein, weil sie neben der Firmware-`CMakeLists.txt` liegt. Eine neu erzeugte `sdkconfig` wird daraus initialisiert; eine bereits vorhandene `sdkconfig` bleibt maßgeblich und wird durch Änderungen an den Defaults nicht automatisch überschrieben. Auch die getrennten Build-Ordner `build` und `build-tests` verwenden standardmäßig dieselbe `firmware/sdkconfig`; sie trennen nur generierte Build-Dateien. Das Ziel-Board kann über das Makefile gesetzt werden:
 
 ```sh
-cd firmware
-idf.py -B build-defaults set-target esp32c3
-idf.py -B build-defaults build
+make set-target TARGET=esp32c3
+make build
 ```
 
-Die lokale `sdkconfig` und Build-Ordner sind generiert und nicht versioniert. Darum liegen die gemeinsam gewünschten Ausgangswerte in `sdkconfig.defaults`.
+`make menuconfig` bearbeitet dieselbe `sdkconfig`. Ein Wechsel des Ziels kann die Konfiguration neu erzeugen; danach sollten Board- und Flash-Einstellungen geprüft werden. Die lokale `sdkconfig` und Build-Ordner sind generiert und nicht versioniert. Darum liegen die gemeinsam gewünschten Ausgangswerte in `firmware/sdkconfig.defaults`.
 
 ## TODO / Roadmap
 
