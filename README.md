@@ -38,11 +38,6 @@ make build
 
 ## TODO / Roadmap
 
-### Stabilität und Grundlage
-
-- Storage-Tests für Schreiben, Lesen, Löschen, fehlende Schlüssel, zu kleine Puffer und Neustart/Persistenz ergänzen; Fehler beim Test-Setup und -Cleanup prüfen.
-- [ ] ESP-IDF-Version und Hardware-Flashgröße dokumentieren sowie sicherstellen, dass die OTA-Partitionierung zum tatsächlich verwendeten Board passt. Die Projekt-Defaults für 4 MB Flash und zwei OTA-Slots liegen in `firmware/sdkconfig.defaults`.
-
 ### Produktfunktion
 
 - Anforderungen und Datenquelle für Abfahrtszeiten festlegen; Netzwerkverbindung, API-Aufruf, JSON-Auswertung, Zeitüberschreitungen und Fehlerzustände implementieren.
